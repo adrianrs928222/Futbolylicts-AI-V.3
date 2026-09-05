@@ -56,6 +56,28 @@ function PickCard({ pick, index }: { pick: MarketCandidate; index: number }) {
   );
 }
 
+function AnalysisPickCard({ pick, index }: { pick: import("@/lib/engine/types").AnalyzedFixtureSummary; index: number }) {
+  const confidence = confidenceLabel(pick.score ?? 0, pick.probability);
+  return (
+    <article className="pick-card analysis-pick-card">
+      <div className="pick-index">{index + 1}</div>
+      <div className="pick-main">
+        <div className="pick-topline">
+          <strong>{pick.fixtureLabel}</strong>
+          <span className={`confidence ${confidence.className}`}>{confidence.label}</span>
+        </div>
+        <div className="market">💎 {pick.bestMarketLabel}</div>
+        <div className="metrics">
+          <span>🧠 {pct(pick.probability)}</span>
+          <span>💙 {(pick.score ?? 0).toFixed(1)}/10</span>
+          <span>💰 {pick.odds !== undefined && pick.realOdds ? `@${pick.odds.toFixed(2)} REAL` : "Sin cuota API"}</span>
+        </div>
+        <p>{pick.explanation}</p>
+      </div>
+    </article>
+  );
+}
+
 export default function Dashboard({ analysis }: { analysis: DailyAnalysis }) {
   const [category, setCategory] = useState<CompetitionCategory | "all">("all");
   const [data, setData] = useState(analysis);
@@ -124,6 +146,19 @@ export default function Dashboard({ analysis }: { analysis: DailyAnalysis }) {
     return { label: "EN JORNADA", className: "queued" };
   }
 
+  const useAnalysisCombo = !data.combo.official && data.analysisPicks.length > 0;
+  const analysisComboStats = useMemo(() => {
+    const picks = data.analysisPicks;
+    if (!picks.length) return { averageScore: 0, combinedProbability: 0, totalOdds: undefined as number | undefined };
+    const averageScore = picks.reduce((sum, pick) => sum + (pick.score ?? 0), 0) / picks.length;
+    const combinedProbability = picks.reduce((product, pick) => product * pick.probability, 1);
+    const allRealOdds = picks.every((pick) => pick.realOdds && pick.odds !== undefined);
+    const totalOdds = allRealOdds
+      ? picks.reduce((product, pick) => product * (pick.odds ?? 1), 1)
+      : undefined;
+    return { averageScore, combinedProbability, totalOdds };
+  }, [data.analysisPicks, useAnalysisCombo]);
+
   async function refresh() {
     setRefreshing(true);
     try {
@@ -175,24 +210,48 @@ export default function Dashboard({ analysis }: { analysis: DailyAnalysis }) {
         <div className="section-title-row">
           <div>
             <div className="eyebrow">🏆 Combinada del dia</div>
-            <h1>{data.combo.picks.length > 0 ? `@${data.combo.totalOdds.toFixed(2)}` : "Combinada del día"}</h1>
-            <p>{data.combo.message}</p>
+            <h1>Combinada del día</h1>
+            <p>
+              {useAnalysisCombo
+                ? `Estos son los ${data.analysisPicks.length} picks ALTA/MUY ALTA más fuertes de los partidos analizados. Si falta cuota, Futbolylicts muestra igualmente el mercado exacto y no inventa el precio.`
+                : data.combo.message}
+            </p>
           </div>
           <button className="refresh" onClick={refresh} disabled={refreshing}>
             {refreshing ? "Revisando…" : "Reanalizar"}
           </button>
         </div>
 
-        {data.combo.picks.length > 0 && (
+        {useAnalysisCombo ? (
+          <div className="combo-list">
+            {data.analysisPicks.map((pick, index) => (
+              <AnalysisPickCard key={`analysis-combo-${pick.fixtureId}`} pick={pick} index={index} />
+            ))}
+          </div>
+        ) : data.combo.picks.length > 0 ? (
           <div className="combo-list">
             {data.combo.picks.map((pick, index) => <PickCard key={`${pick.fixtureId}-${pick.market}`} pick={pick} index={index} />)}
           </div>
-        )}
+        ) : null}
 
         <div className="combo-footer">
-          <span>💰 Total: <strong>{data.combo.picks.length > 0 ? `@${data.combo.totalOdds.toFixed(2)}` : "—"}</strong></span>
-          <span>💙 Calidad media: <strong>{data.combo.picks.length > 0 ? `${data.combo.globalScore.toFixed(1)}/10` : "—"}</strong></span>
-          <span>🧠 Prob. combinada est.: <strong>{data.combo.picks.length > 0 ? pct(data.combo.globalProbability) : "—"}</strong></span>
+          <span>💰 Total: <strong>
+            {useAnalysisCombo
+              ? analysisComboStats.totalOdds !== undefined
+                ? `@${analysisComboStats.totalOdds.toFixed(2)}`
+                : "Pendiente de cuotas"
+              : data.combo.picks.length > 0 ? `@${data.combo.totalOdds.toFixed(2)}` : "—"}
+          </strong></span>
+          <span>💙 Calidad media: <strong>
+            {useAnalysisCombo
+              ? `${analysisComboStats.averageScore.toFixed(1)}/10`
+              : data.combo.picks.length > 0 ? `${data.combo.globalScore.toFixed(1)}/10` : "—"}
+          </strong></span>
+          <span>🧠 Prob. combinada est.: <strong>
+            {useAnalysisCombo
+              ? pct(analysisComboStats.combinedProbability)
+              : data.combo.picks.length > 0 ? pct(data.combo.globalProbability) : "—"}
+          </strong></span>
         </div>
       </section>
 

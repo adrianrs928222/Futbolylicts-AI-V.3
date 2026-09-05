@@ -159,6 +159,7 @@ export interface DailyAnalysis {
   analyzedFixturesCount: number;
   candidates: MarketCandidate[];
   analyzedFixtures: AnalyzedFixtureSummary[];
+  analysisPicks: AnalyzedFixtureSummary[];
   combo: DailyCombo;
   categoryCounts: Partial<Record<CompetitionCategory, number>>;
   apiUsage: {

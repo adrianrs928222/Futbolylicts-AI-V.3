@@ -1,4 +1,4 @@
-FUTBOLYLICTS-AI v0.12.0
+FUTBOLYLICTS-AI v0.13.0
 ========================
 
 IDENTIDAD
@@ -41,5 +41,5 @@ FILTROS
 - amistosos excluidos
 
 MIGRACIÓN
-- no hay migración nueva v0.12
+- no hay migración nueva v0.13
 - desde v0.6: ejecutar una vez supabase/migrations/v0.7_the_odds_api.sql

@@ -1,4 +1,4 @@
-# LA MENTE DEL GOL ⭐ — Futbolylicts-AI v0.12
+# LA MENTE DEL GOL ⭐ — Futbolylicts-AI v0.13
 
 Pronosticador web con motor propio.
 
@@ -11,7 +11,7 @@ Arquitectura:
 
 No existe fallback automático de cuotas desde API-Football. Si no hay cuota real compatible, el partido puede seguir apareciendo y ser analizado, pero no entra como pick oficial.
 
-## Motor v0.12
+## Motor v0.13
 
 - **ALTA:** probabilidad >= **70%** y nota >= **8.0/10**.
 - **MUY ALTA:** probabilidad >= **78%** y nota >= **9.0/10**.
@@ -86,7 +86,7 @@ No metas claves reales en GitHub.
 
 ## Supabase
 
-Si ya ejecutaste la migración de The Odds API de una versión anterior, no hace falta una migración nueva para v0.12.
+Si ya ejecutaste la migración de The Odds API de una versión anterior, no hace falta una migración nueva para v0.13.
 
 Desde v0.6, ejecuta una vez:
 
@@ -112,3 +112,7 @@ Tras subir esta versión a GitHub: **Manual Deploy → Clear build cache & deplo
 ## Aviso
 
 Futbolylicts-AI genera estimaciones probabilísticas. Una etiqueta ALTA/MUY ALTA no garantiza el resultado. +18 · Juega con responsabilidad.
+
+
+## v0.13 — Combinada desde el análisis
+Si aún no hay combinación oficial por falta de cuotas, la caja principal muestra hasta 5 picks ALTA/MUY ALTA de los partidos analizados. Las cuotas que no devuelve la API se marcan como `Sin cuota API`; nunca se inventan.

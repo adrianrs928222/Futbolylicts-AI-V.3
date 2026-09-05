@@ -6,6 +6,7 @@ import {
 import { API_POLICY, FUTBOLYLICTS_RULES, ODDS_API_POLICY } from "@/lib/config/rules";
 import { demoFixtures } from "@/lib/data/demo";
 import { buildBestCombo, eligibleCandidates } from "@/lib/engine/combo";
+import { selectAnalysisPicks } from "@/lib/engine/analysisCombo";
 import { buildTeamForm } from "@/lib/engine/form";
 import {
   fixturePricingPriority,
@@ -439,6 +440,7 @@ export async function buildDailyAnalysis(date: string): Promise<DailyAnalysis> {
     .sort((a, b) => b.score - a.score || b.probability - a.probability);
 
   const analyzedFixtures = buildAnalyzedFixtureSummaries(enriched, candidates);
+  const analysisPicks = selectAnalysisPicks(analyzedFixtures);
 
   const combo = buildBestCombo(date, candidates);
   if (mode === "demo") combo.official = false;
@@ -458,6 +460,7 @@ export async function buildDailyAnalysis(date: string): Promise<DailyAnalysis> {
     analyzedFixturesCount: enriched.length,
     candidates,
     analyzedFixtures,
+    analysisPicks,
     combo,
     categoryCounts: mode === "live" ? countRawCategories(rawFixtures) : countCategories(enriched),
     apiUsage: {

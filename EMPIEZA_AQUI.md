@@ -1,4 +1,4 @@
-# EMPIEZA AQUÍ — Futbolylicts-AI v0.12
+# EMPIEZA AQUÍ — Futbolylicts-AI v0.13
 
 Esta es la versión con el ajuste que pediste:
 
@@ -27,4 +27,8 @@ Mantén también `API_FOOTBALL_KEY`, `THE_ODDS_API_KEY`, `NEXT_PUBLIC_SUPABASE_U
 
 Después de subir a GitHub: **Render → Manual Deploy → Clear build cache & deploy**.
 
-No hay migración nueva de Supabase para v0.12. Si nunca hiciste la de The Odds API, ejecuta `supabase/migrations/v0.7_the_odds_api.sql`.
+No hay migración nueva de Supabase para v0.13. Si nunca hiciste la de The Odds API, ejecuta `supabase/migrations/v0.7_the_odds_api.sql`.
+
+
+### NUEVO EN v0.13
+La Combinada del día ya no queda vacía si hay partidos analizados con confianza ALTA/MUY ALTA. Muestra hasta 5 mercados concretos aunque falte la cuota API. Si falta una cuota, verás `Sin cuota API` y el total queda pendiente.
