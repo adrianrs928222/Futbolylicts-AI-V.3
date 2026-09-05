@@ -31,7 +31,7 @@ function pick(
   };
 }
 
-describe("filtro Futbolylicts v0.12", () => {
+describe("filtro Futbolylicts v0.14", () => {
   it("ALTA empieza en 70% pero sigue exigiendo nota 8.0", () => {
     const eligible = eligibleCandidates([
       pick(1, 1.55, 8.8, "OVER_1_5", 0.69),

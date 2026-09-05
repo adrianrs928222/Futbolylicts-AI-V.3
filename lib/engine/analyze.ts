@@ -11,7 +11,7 @@ import { buildTeamForm } from "@/lib/engine/form";
 import {
   fixturePricingPriority,
   marketProbability,
-  rankMarketsForPricing,
+  rankMarketsForAnalysis,
   scoreMarkets,
   statisticalMarketScore,
 } from "@/lib/engine/scoring";
@@ -60,6 +60,14 @@ const MARKET_LABELS: Record<string, string> = {
   AWAY_OVER_0_5: "Visitante +0.5 goles",
   HOME_OVER_1_5: "Local +1.5 goles",
   AWAY_OVER_1_5: "Visitante +1.5 goles",
+  COMBO_1X_OVER_1_5: "1X + Más de 1.5 goles",
+  COMBO_X2_OVER_1_5: "X2 + Más de 1.5 goles",
+  COMBO_1X_OVER_2_5: "1X + Más de 2.5 goles",
+  COMBO_X2_OVER_2_5: "X2 + Más de 2.5 goles",
+  COMBO_HOME_WIN_OVER_1_5: "Gana local + Más de 1.5 goles",
+  COMBO_AWAY_WIN_OVER_1_5: "Gana visitante + Más de 1.5 goles",
+  COMBO_HOME_WIN_OVER_2_5: "Gana local + Más de 2.5 goles",
+  COMBO_AWAY_WIN_OVER_2_5: "Gana visitante + Más de 2.5 goles",
 };
 
 function buildAnalyzedFixtureSummaries(
@@ -89,6 +97,17 @@ function buildAnalyzedFixtureSummaries(
       if (edge < FUTBOLYLICTS_RULES.minValueEdge) failures.push(`valor insuficiente frente a la cuota (${Math.round(edge * 100)} pts)`);
       if (!best.realOdds) failures.push("falta cuota real");
 
+      const rankedAnalysisMarkets = rankMarketsForAnalysis(item);
+      const alternatives = rankedAnalysisMarkets
+        .filter((market) => market !== best.market)
+        .slice(0, 3)
+        .map((market) => ({
+          marketLabel: MARKET_LABELS[market] ?? market,
+          probability: marketProbability(market, item),
+          score: statisticalMarketScore(market, item),
+        }))
+        .filter((alt) => alt.probability >= 0.65 && alt.score >= 7.5);
+
       const passes = failures.length === 0;
       const near = !passes && best.probability >= 0.67 && best.score >= 7.7;
       return {
@@ -105,12 +124,22 @@ function buildAnalyzedFixtureSummaries(
         explanation: passes
           ? "Pasa probabilidad, nota, rango de cuota y valor frente a la cuota."
           : `No entra por: ${failures.join(" · ")}.`,
+        alternatives,
       };
     }
 
-    const theoreticalMarket = rankMarketsForPricing(item)[0];
+    const rankedAnalysisMarkets = rankMarketsForAnalysis(item);
+    const theoreticalMarket = rankedAnalysisMarkets[0];
     const probability = theoreticalMarket ? marketProbability(theoreticalMarket, item) : 0;
     const score = theoreticalMarket ? statisticalMarketScore(theoreticalMarket, item) : 0;
+    const alternatives = rankedAnalysisMarkets
+      .slice(1, 4)
+      .map((market) => ({
+        marketLabel: MARKET_LABELS[market] ?? market,
+        probability: marketProbability(market, item),
+        score: statisticalMarketScore(market, item),
+      }))
+      .filter((alt) => alt.probability >= 0.65 && alt.score >= 7.5);
     return {
       fixtureId: item.fixture.id,
       fixtureLabel: `${item.fixture.home.name} – ${item.fixture.away.name}`,
@@ -124,6 +153,7 @@ function buildAnalyzedFixtureSummaries(
       explanation: probability >= FUTBOLYLICTS_RULES.minProbability && score >= FUTBOLYLICTS_RULES.minScore
         ? `Perfil ALTA por datos (${Math.round(probability * 100)}% · ${score.toFixed(1)}/10), pero falta cuota real para comprobar también el valor y validarlo como pick oficial.`
         : "Analizado estadísticamente, pero no llegó cuota real o no supera a la vez probabilidad y nota.",
+      alternatives,
     };
   }).sort((a, b) => {
     const order = { PASA: 0, CERCA: 1, SIN_CUOTA: 2, FUERA: 3 } as const;

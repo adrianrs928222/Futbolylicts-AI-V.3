@@ -1,4 +1,4 @@
-# Contrato de producto — Futbolylicts-AI v0.12
+# Contrato de producto — Futbolylicts-AI v0.14
 
 ## Objetivo
 
@@ -21,7 +21,7 @@ Prioridad: probabilidad/solidez → nota contextual → cobertura/valor → cuot
 
 ## Mercados
 
-Ganador, 1X, X2, 12, +0.5/+1.5/+2.5, BTTS Sí y goles de equipo +0.5/+1.5. No se fuerza variedad y se permite repetición si la calidad lo justifica. BTTS automático necesita @1.35+.
+Ganador, 1X, X2, 12, +0.5/+1.5/+2.5, BTTS Sí, goles de equipo +0.5/+1.5 y combinados del mismo partido: 1X+O1.5, X2+O1.5, 1X+O2.5, X2+O2.5, ganador+O1.5 y ganador+O2.5. No se fuerza variedad y se permite repetición si la calidad lo justifica. BTTS automático necesita @1.35+. +2.5 debe tener espacio real cuando sigue siendo ALTA/MUY ALTA y no debe degradarse automáticamente a +1.5. La probabilidad de un combinado se calcula conjuntamente por marcadores; si no existe cuota real Bet Builder en la API, se muestra sin cuota y no se inventa.
 
 ## Combinada
 

@@ -19,7 +19,15 @@ export type MarketKey =
   | "HOME_OVER_0_5"
   | "AWAY_OVER_0_5"
   | "HOME_OVER_1_5"
-  | "AWAY_OVER_1_5";
+  | "AWAY_OVER_1_5"
+  | "COMBO_1X_OVER_1_5"
+  | "COMBO_X2_OVER_1_5"
+  | "COMBO_1X_OVER_2_5"
+  | "COMBO_X2_OVER_2_5"
+  | "COMBO_HOME_WIN_OVER_1_5"
+  | "COMBO_AWAY_WIN_OVER_1_5"
+  | "COMBO_HOME_WIN_OVER_2_5"
+  | "COMBO_AWAY_WIN_OVER_2_5";
 
 export type Confidence = "MUY_ALTA" | "ALTA" | "MEDIA_ALTA" | "MEDIA" | "BAJA";
 
@@ -136,6 +144,11 @@ export interface AnalyzedFixtureSummary {
   realOdds: boolean;
   status: "PASA" | "CERCA" | "FUERA" | "SIN_CUOTA";
   explanation: string;
+  alternatives?: Array<{
+    marketLabel: string;
+    probability: number;
+    score: number;
+  }>;
 }
 
 

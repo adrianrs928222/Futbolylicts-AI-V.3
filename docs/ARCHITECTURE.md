@@ -1,4 +1,4 @@
-# Arquitectura de Futbolylicts-AI v0.12
+# Arquitectura de Futbolylicts-AI v0.14
 
 ```text
       API-Football                         The Odds API

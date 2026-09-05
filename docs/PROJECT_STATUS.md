@@ -1,4 +1,4 @@
-# Estado del proyecto — v0.12
+# Estado del proyecto — v0.14
 
 ## Implementado
 

@@ -673,3 +673,11 @@ footer {
   .today-row { grid-template-columns: 52px minmax(0, 1fr); gap: 8px; }
   .today-state { grid-column: 2; width: fit-content; }
 }
+
+.market-alternatives {
+  margin-top: 8px;
+  color: #a8bdd1;
+  font-size: 11px;
+  line-height: 1.45;
+}
+.market-alternatives strong { color: #69f7ae; }

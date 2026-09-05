@@ -10,6 +10,7 @@ import {
   clamp,
   outcomeProbabilities,
   overProbability,
+  poissonProbability,
   teamOverProbability,
 } from "@/lib/engine/math";
 
@@ -41,6 +42,29 @@ function expectedGoals(fixture: EnrichedFixture) {
   }
 
   return { lambdaHome, lambdaAway };
+}
+
+function jointScorelineProbability(
+  lambdaHome: number,
+  lambdaAway: number,
+  predicate: (homeGoals: number, awayGoals: number) => boolean,
+  maxGoals = 10,
+) {
+  let matched = 0;
+  let total = 0;
+  for (let h = 0; h <= maxGoals; h += 1) {
+    const ph = poissonProbability(lambdaHome, h);
+    for (let a = 0; a <= maxGoals; a += 1) {
+      const p = ph * poissonProbability(lambdaAway, a);
+      total += p;
+      if (predicate(h, a)) matched += p;
+    }
+  }
+  return total > 0 ? matched / total : 0;
+}
+
+export function isSameGameComboMarket(market: MarketKey) {
+  return market.startsWith("COMBO_");
 }
 
 export function marketProbability(market: MarketKey, fixture: EnrichedFixture): number {
@@ -75,7 +99,44 @@ export function marketProbability(market: MarketKey, fixture: EnrichedFixture): 
       return teamOverProbability(lambdaHome, 1.5);
     case "AWAY_OVER_1_5":
       return teamOverProbability(lambdaAway, 1.5);
+    case "COMBO_1X_OVER_1_5":
+      return jointScorelineProbability(lambdaHome, lambdaAway, (h, a) => h >= a && h + a >= 2);
+    case "COMBO_X2_OVER_1_5":
+      return jointScorelineProbability(lambdaHome, lambdaAway, (h, a) => a >= h && h + a >= 2);
+    case "COMBO_1X_OVER_2_5":
+      return jointScorelineProbability(lambdaHome, lambdaAway, (h, a) => h >= a && h + a >= 3);
+    case "COMBO_X2_OVER_2_5":
+      return jointScorelineProbability(lambdaHome, lambdaAway, (h, a) => a >= h && h + a >= 3);
+    case "COMBO_HOME_WIN_OVER_1_5":
+      return jointScorelineProbability(lambdaHome, lambdaAway, (h, a) => h > a && h + a >= 2);
+    case "COMBO_AWAY_WIN_OVER_1_5":
+      return jointScorelineProbability(lambdaHome, lambdaAway, (h, a) => a > h && h + a >= 2);
+    case "COMBO_HOME_WIN_OVER_2_5":
+      return jointScorelineProbability(lambdaHome, lambdaAway, (h, a) => h > a && h + a >= 3);
+    case "COMBO_AWAY_WIN_OVER_2_5":
+      return jointScorelineProbability(lambdaHome, lambdaAway, (h, a) => a > h && h + a >= 3);
   }
+}
+
+function hasWinnerCondition(market: MarketKey) {
+  return [
+    "HOME_WIN",
+    "AWAY_WIN",
+    "COMBO_HOME_WIN_OVER_1_5",
+    "COMBO_AWAY_WIN_OVER_1_5",
+    "COMBO_HOME_WIN_OVER_2_5",
+    "COMBO_AWAY_WIN_OVER_2_5",
+  ].includes(market);
+}
+
+function hasOver25Condition(market: MarketKey) {
+  return [
+    "OVER_2_5",
+    "COMBO_1X_OVER_2_5",
+    "COMBO_X2_OVER_2_5",
+    "COMBO_HOME_WIN_OVER_2_5",
+    "COMBO_AWAY_WIN_OVER_2_5",
+  ].includes(market);
 }
 
 function competitionPenalty(fixture: EnrichedFixture, market: MarketKey): number {
@@ -83,25 +144,24 @@ function competitionPenalty(fixture: EnrichedFixture, market: MarketKey): number
   const round = (fixture.fixture.round ?? "").toLowerCase();
   let penalty = 0;
 
-  // Copa nacional: más riesgo de rotación y de partidos raros. Penalizamos más los ganadores puros.
   if (category === "national_cup") {
-    penalty += market === "HOME_WIN" || market === "AWAY_WIN" ? 0.24 : 0.08;
+    penalty += hasWinnerCondition(market) ? 0.24 : 0.08;
     if (/final|semi|quarter|round of 16|octavos|cuartos|semifinal/.test(round)) {
-      penalty -= 0.03; // fases importantes suelen reducir algo la incertidumbre de motivación.
+      penalty -= 0.03;
     }
   }
 
-  // Europa: partidos de eliminatoria pueden ser tácticos; no damos por hecho un perfil de liga.
   if (["champions", "europa", "conference"].includes(category)) {
     if (/qualif|play-off|knockout|round of 16|quarter|semi|final/.test(round)) {
-      if (market === "HOME_WIN" || market === "AWAY_WIN") penalty += 0.06;
-      if (market === "BTTS_YES" || market === "OVER_2_5") penalty += 0.04;
+      if (hasWinnerCondition(market)) penalty += 0.06;
+      if (market === "BTTS_YES" || hasOver25Condition(market)) penalty += 0.04;
     }
   }
 
   if (fixture.homeForm.matches < 5 || fixture.awayForm.matches < 5) penalty += 0.18;
   if (market === "BTTS_YES") penalty += 0.08;
   if (market === "DOUBLE_CHANCE_12") penalty += 0.03;
+  if (isSameGameComboMarket(market)) penalty += 0.03;
 
   return penalty;
 }
@@ -129,9 +189,10 @@ function buildRiskNote(market: MarketKey, fixture: EnrichedFixture, probability:
     risks.push("el contexto de eliminatoria puede volver el partido más táctico");
   }
   if (market === "BTTS_YES") risks.push("una portería a cero de cualquiera de los dos rompe el mercado");
-  if (market === "OVER_2_5") risks.push("un partido más cerrado de lo previsto puede dejar la línea en solo 1–2 goles");
-  if (market === "HOME_WIN" || market === "AWAY_WIN") risks.push("un empate basta para hacer fallar el ganador simple");
+  if (hasOver25Condition(market)) risks.push("un partido más cerrado de lo previsto puede dejar la línea en solo 1–2 goles");
+  if (hasWinnerCondition(market)) risks.push("el equipo elegido tiene que ganar; el empate no sirve");
   if (market === "DOUBLE_CHANCE_12") risks.push("el empate es el único resultado que hace fallar el 12");
+  if (isSameGameComboMarket(market)) risks.push("tienen que cumplirse las dos condiciones del combinado");
 
   return risks.length ? risks.slice(0, 2).join("; ") + "." : "No aparece un factor de riesgo dominante con los datos disponibles.";
 }
@@ -155,6 +216,22 @@ function buildReasoning(market: MarketKey, fixture: EnrichedFixture, probability
       return `${fixture.fixture.home.name} marca en ${Math.round(hf.scoringPct * 100)}% de la muestra reciente; pedir un gol evita depender del resultado. ${context}`;
     case "AWAY_OVER_0_5":
       return `${fixture.fixture.away.name} marca en ${Math.round(af.scoringPct * 100)}% de la muestra reciente; pedir un gol evita depender del resultado. ${context}`;
+    case "COMBO_1X_OVER_1_5":
+      return `El motor cruza dos condiciones: ${fixture.fixture.home.name} no pierde (1X) y hay +1.5 goles. La probabilidad conjunta estimada es ${pct}%; no se obtiene multiplicando porcentajes independientes, sino desde los marcadores posibles del modelo. ${context}`;
+    case "COMBO_X2_OVER_1_5":
+      return `El motor cruza dos condiciones: ${fixture.fixture.away.name} no pierde (X2) y hay +1.5 goles. La probabilidad conjunta estimada es ${pct}%; se calcula sobre los marcadores posibles del modelo. ${context}`;
+    case "COMBO_1X_OVER_2_5":
+      return `Combinado 1X + +2.5: exige que ${fixture.fixture.home.name} no pierda y que el partido llegue a 3 goles o más. Probabilidad conjunta estimada: ${pct}%. ${context}`;
+    case "COMBO_X2_OVER_2_5":
+      return `Combinado X2 + +2.5: exige que ${fixture.fixture.away.name} no pierda y que el partido llegue a 3 goles o más. Probabilidad conjunta estimada: ${pct}%. ${context}`;
+    case "COMBO_HOME_WIN_OVER_1_5":
+      return `${fixture.fixture.home.name} gana + +1.5 goles: deben cumplirse victoria local y al menos 2 goles. Probabilidad conjunta estimada: ${pct}%. ${context}`;
+    case "COMBO_AWAY_WIN_OVER_1_5":
+      return `${fixture.fixture.away.name} gana + +1.5 goles: deben cumplirse victoria visitante y al menos 2 goles. Probabilidad conjunta estimada: ${pct}%. ${context}`;
+    case "COMBO_HOME_WIN_OVER_2_5":
+      return `${fixture.fixture.home.name} gana + +2.5 goles: deben cumplirse victoria local y al menos 3 goles. Probabilidad conjunta estimada: ${pct}%. ${context}`;
+    case "COMBO_AWAY_WIN_OVER_2_5":
+      return `${fixture.fixture.away.name} gana + +2.5 goles: deben cumplirse victoria visitante y al menos 3 goles. Probabilidad conjunta estimada: ${pct}%. ${context}`;
     default:
       return `La selección combina forma, producción/concesión, clasificación y contexto competitivo. Probabilidad estimada: ${pct}%. ${context}`;
   }
@@ -204,7 +281,6 @@ export function scoreMarkets(fixture: EnrichedFixture): MarketCandidate[] {
   });
 }
 
-
 const PRICING_MARKETS: MarketKey[] = [
   "HOME_WIN",
   "AWAY_WIN",
@@ -221,6 +297,18 @@ const PRICING_MARKETS: MarketKey[] = [
   "AWAY_OVER_1_5",
 ];
 
+const ANALYSIS_MARKETS: MarketKey[] = [
+  ...PRICING_MARKETS,
+  "COMBO_1X_OVER_1_5",
+  "COMBO_X2_OVER_1_5",
+  "COMBO_1X_OVER_2_5",
+  "COMBO_X2_OVER_2_5",
+  "COMBO_HOME_WIN_OVER_1_5",
+  "COMBO_AWAY_WIN_OVER_1_5",
+  "COMBO_HOME_WIN_OVER_2_5",
+  "COMBO_AWAY_WIN_OVER_2_5",
+];
+
 function pricingUtility(market: MarketKey, probability: number): number {
   const fairOdds = 1 / Math.max(0.01, probability);
   let priceFit = 0;
@@ -230,7 +318,6 @@ function pricingUtility(market: MarketKey, probability: number): number {
   else if (fairOdds > 1.75 && fairOdds <= 2.15) priceFit = 0.2;
   else priceFit = -0.55;
 
-  // Preferimos mercados que suelen aportar cuota útil sin perder cobertura.
   const coverageBonus =
     market === "DOUBLE_CHANCE_1X" ||
     market === "DOUBLE_CHANCE_X2" ||
@@ -246,13 +333,14 @@ function pricingUtility(market: MarketKey, probability: number): number {
     market === "HOME_OVER_1_5" ||
     market === "AWAY_OVER_1_5" ||
     market === "DOUBLE_CHANCE_12"
-      ? 0.12
+      ? 0.2
       : 0;
 
-  // +0.5 de partido suele pagar demasiado poco; solo sube si la probabilidad/precio lo justifican.
+  const comboBonus = isSameGameComboMarket(market) ? 0.22 : 0;
+  const over25Bonus = hasOver25Condition(market) ? 0.08 : 0;
   const tinyOddsPenalty = market === "OVER_0_5" ? 0.45 : 0;
 
-  return probability * 10 + priceFit + coverageBonus + valueBonus - tinyOddsPenalty;
+  return probability * 10 + priceFit + coverageBonus + valueBonus + comboBonus + over25Bonus - tinyOddsPenalty;
 }
 
 export function rankMarketsForPricing(fixture: EnrichedFixture): MarketKey[] {
@@ -265,6 +353,23 @@ export function rankMarketsForPricing(fixture: EnrichedFixture): MarketKey[] {
     .sort(
       (a, b) =>
         pricingUtility(b.market, b.probability) - pricingUtility(a.market, a.probability),
+    )
+    .map(({ market }) => market);
+}
+
+export function rankMarketsForAnalysis(fixture: EnrichedFixture): MarketKey[] {
+  return ANALYSIS_MARKETS
+    .map((market) => ({
+      market,
+      probability: clamp(marketProbability(market, fixture), 0.01, 0.99),
+      score: statisticalMarketScore(market, fixture),
+    }))
+    .filter(({ probability, score }) => probability >= 0.52 && score >= 6.8)
+    .sort(
+      (a, b) =>
+        pricingUtility(b.market, b.probability) - pricingUtility(a.market, a.probability) ||
+        b.score - a.score ||
+        b.probability - a.probability,
     )
     .map(({ market }) => market);
 }

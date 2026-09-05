@@ -1,4 +1,4 @@
-# Reglas canónicas de Futbolylicts-AI — v0.12
+# Reglas canónicas de Futbolylicts-AI — v0.14
 
 ## Prioridad
 
@@ -38,6 +38,7 @@ Ejemplo: @1.50 implica aproximadamente 66.7%; el motor necesita al menos ~69.7%,
 - +0.5 / +1.5 / +2.5 goles
 - BTTS Sí
 - local/visitante +0.5 o +1.5 goles
+- combinados del mismo partido: 1X/X2/Ganador + +1.5 o +2.5 goles
 
 Prohibidos:
 
@@ -47,6 +48,12 @@ Prohibidos:
 ## Repetición
 
 No existe límite artificial por tipo de mercado. Si los mejores son varios BTTS, +2.5, X2, 12, etc., pueden repetirse.
+
+### +2.5 y combinados
+
+- +2.5 se compara de verdad contra +1.5; no se baja automáticamente a +1.5 si +2.5 sigue siendo ALTA/MUY ALTA.
+- Los combinados 1X/X2/Ganador + goles usan probabilidad conjunta por marcadores, no una multiplicación ingenua de probabilidades.
+- Si la API no da cuota Bet Builder del combinado, se muestra `Sin cuota API`; nunca se inventa una cuota.
 
 ## Combinada diaria
 

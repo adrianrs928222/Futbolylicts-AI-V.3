@@ -268,7 +268,7 @@ function findMatchingEvent(fixture: Fixture, events: OddsEvent[]): OddsEvent | n
   return ranked[0]?.score >= 0.62 ? ranked[0].event : null;
 }
 
-function marketGroupFor(market: MarketKey): TheOddsMarketGroup {
+function marketGroupFor(market: MarketKey): TheOddsMarketGroup | null {
   switch (market) {
     case "HOME_WIN":
     case "AWAY_WIN":
@@ -289,6 +289,17 @@ function marketGroupFor(market: MarketKey): TheOddsMarketGroup {
     case "HOME_OVER_1_5":
     case "AWAY_OVER_1_5":
       return "alternate_team_totals";
+    case "COMBO_1X_OVER_1_5":
+    case "COMBO_X2_OVER_1_5":
+    case "COMBO_1X_OVER_2_5":
+    case "COMBO_X2_OVER_2_5":
+    case "COMBO_HOME_WIN_OVER_1_5":
+    case "COMBO_AWAY_WIN_OVER_1_5":
+    case "COMBO_HOME_WIN_OVER_2_5":
+    case "COMBO_AWAY_WIN_OVER_2_5":
+      // The Odds API v4 no ofrece una cuota SGP/combinada del mismo partido
+      // con este endpoint. El motor la analiza, pero nunca inventa su cuota.
+      return null;
   }
 }
 
@@ -301,7 +312,7 @@ function groupsForFixture(
 
   for (const market of rankMarketsForPricing(fixture)) {
     const group = marketGroupFor(market);
-    if (!rankedGroups.includes(group)) rankedGroups.push(group);
+    if (group && !rankedGroups.includes(group)) rankedGroups.push(group);
   }
 
   return rankedGroups.slice(groupOffset, groupOffset + Math.max(1, maxGroups));

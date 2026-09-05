@@ -1,7 +1,7 @@
 const required = ["API_FOOTBALL_KEY", "THE_ODDS_API_KEY"];
 const recommended = ["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"];
 
-console.log("\nFutbolylicts-AI v0.12 · comprobación de configuración\n");
+console.log("\nFutbolylicts-AI v0.14 · comprobación de configuración\n");
 
 for (const key of required) {
   console.log(

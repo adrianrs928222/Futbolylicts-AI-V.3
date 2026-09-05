@@ -1,4 +1,4 @@
-# Caché y ahorro de llamadas — v0.12
+# Caché y ahorro de llamadas — v0.14
 
 Futbolylicts-AI no pregunta dos veces por un dato que todavía está fresco.
 
@@ -35,7 +35,7 @@ Supabase almacena tanto respuestas frescas como contadores. Si Render se reinici
 
 Los usuarios que vienen de v0.6 deben ejecutar:
 
-`supabase/migrations/v0.12_the_odds_api.sql`
+`supabase/migrations/v0.7_the_odds_api.sql`
 
 ## Importante
 

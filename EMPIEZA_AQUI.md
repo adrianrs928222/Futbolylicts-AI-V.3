@@ -1,4 +1,4 @@
-# EMPIEZA AQUÍ — Futbolylicts-AI v0.13
+# EMPIEZA AQUÍ — Futbolylicts-AI v0.14
 
 Esta es la versión con el ajuste que pediste:
 
@@ -27,8 +27,20 @@ Mantén también `API_FOOTBALL_KEY`, `THE_ODDS_API_KEY`, `NEXT_PUBLIC_SUPABASE_U
 
 Después de subir a GitHub: **Render → Manual Deploy → Clear build cache & deploy**.
 
-No hay migración nueva de Supabase para v0.13. Si nunca hiciste la de The Odds API, ejecuta `supabase/migrations/v0.7_the_odds_api.sql`.
+No hay migración nueva de Supabase para v0.14. Si nunca hiciste la de The Odds API, ejecuta `supabase/migrations/v0.7_the_odds_api.sql`.
 
 
-### NUEVO EN v0.13
+### NUEVO EN v0.14
+
+- Combinados 1X/X2/Ganador + +1.5/+2.5 analizados por probabilidad conjunta.
+- +2.5 mantiene peso real si pasa ALTA/MUY ALTA.
+- Se muestran alternativas fuertes del mismo partido.
+- Si no hay cuota Bet Builder en The Odds API, aparece `Sin cuota API`; no se inventa.
+
+### HEREDADO DE v0.13
 La Combinada del día ya no queda vacía si hay partidos analizados con confianza ALTA/MUY ALTA. Muestra hasta 5 mercados concretos aunque falte la cuota API. Si falta una cuota, verás `Sin cuota API` y el total queda pendiente.
+
+
+## v0.14 — combinados del mismo partido
+
+El motor incluye 1X/X2/Ganador + Más de 1.5 o Más de 2.5. La probabilidad se calcula de forma conjunta por marcadores; no se multiplican probabilidades independientes. +2.5 mantiene peso real cuando supera los filtros. Si The Odds API no ofrece cuota Bet Builder del combinado, se muestra `Sin cuota API` y nunca se inventa el precio.

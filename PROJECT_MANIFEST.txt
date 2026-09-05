@@ -1,4 +1,4 @@
-FUTBOLYLICTS-AI v0.13.0
+FUTBOLYLICTS-AI v0.14.0
 ========================
 
 IDENTIDAD
@@ -7,7 +7,7 @@ IDENTIDAD
 
 ARQUITECTURA
 - API-Football: SOLO datos deportivos
-- The Odds API: SOLO cuotas
+- The Odds API: SOLO cuotas simples disponibles
 - Supabase: caché + histórico + control de uso
 - Motor propio: probabilidad + nota + valor + combinada
 
@@ -15,13 +15,17 @@ MOTOR
 - ALTA: >=70% Y >=8.0/10
 - MUY ALTA: >=78% Y >=9.0/10
 - probabilidad y nota independientes
-- valor mínimo sobre cuota: +3 puntos porcentuales
+- valor mínimo sobre cuota real: +3 puntos porcentuales
 - prioridad 8.5+ / 78%+
-- cuota/pick @1.25–@1.75
+- cuota/pick oficial @1.25–@1.75
 - BTTS mínimo @1.35
 - objetivo total @8–@10
 - 4–6 patas, máximo una por partido
 - mercados pueden repetirse
+- +2.5 tiene peso real si mantiene ALTA/MUY ALTA
+- combinados: 1X/X2/Ganador + +1.5/+2.5
+- probabilidad de combinados calculada conjuntamente por marcadores
+- cuota de combinados nunca inventada: si la API no la da, aparece Sin cuota API
 - UNDER y hándicap prohibidos
 
 VISIBILIDAD
@@ -31,6 +35,7 @@ VISIBILIDAD
 - hasta 10 partidos con primera consulta de cuotas por defecto
 - segunda familia alternativa para hasta 4 partidos sin pick
 - todos los analizados visibles con motivo
+- alternativas fuertes visibles, incluidos combinados del mismo partido
 - todos los picks válidos visibles sin corte a 18
 - si no se alcanza @8 sin degradar calidad, se muestran igualmente los picks válidos
 
@@ -41,5 +46,5 @@ FILTROS
 - amistosos excluidos
 
 MIGRACIÓN
-- no hay migración nueva v0.13
+- no hay migración nueva v0.14
 - desde v0.6: ejecutar una vez supabase/migrations/v0.7_the_odds_api.sql

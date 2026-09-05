@@ -67,6 +67,11 @@ function AnalysisPickCard({ pick, index }: { pick: import("@/lib/engine/types").
           <span className={`confidence ${confidence.className}`}>{confidence.label}</span>
         </div>
         <div className="market">💎 {pick.bestMarketLabel}</div>
+        {pick.alternatives && pick.alternatives.length > 0 && (
+          <div className="market-alternatives">
+            <strong>También valora:</strong> {pick.alternatives.map((alt) => `${alt.marketLabel} (${pct(alt.probability)} · ${alt.score.toFixed(1)}/10)`).join(" · ")}
+          </div>
+        )}
         <div className="metrics">
           <span>🧠 {pct(pick.probability)}</span>
           <span>💙 {(pick.score ?? 0).toFixed(1)}/10</span>
@@ -192,7 +197,8 @@ export default function Dashboard({ analysis }: { analysis: DailyAnalysis }) {
         <div className="rule-box"><small>PATAS</small><strong>4–6 · prioridad ≥8.5</strong></div>
         <div className="rule-box"><small>CUOTA/PICK</small><strong>@1.25 – @1.75</strong></div>
         <div className="rule-box"><small>VALOR</small><strong>≥3 pts sobre cuota</strong></div>
-        <div className="rule-box"><small>BTTS / MERCADOS</small><strong>Libres según calidad</strong></div>
+        <div className="rule-box"><small>BTTS / +2.5</small><strong>Libres según calidad</strong></div>
+        <div className="rule-box"><small>COMBINADOS</small><strong>1X/X2/Ganador + +1.5/+2.5</strong></div>
         <div className="rule-box blocked"><small>MERCADOS UNDER</small><strong>DESACTIVADOS</strong></div>
         <div className="rule-box"><small>RESERVAS</small><strong>Solo Eerste Divisie</strong></div>
       </section>
@@ -384,6 +390,11 @@ export default function Dashboard({ analysis }: { analysis: DailyAnalysis }) {
                 <span className="analyzed-status">{analyzedStatusLabel(item.status)}</span>
               </div>
               <div className="analyzed-market">💎 {item.bestMarketLabel}</div>
+              {item.alternatives && item.alternatives.length > 0 && (
+                <div className="market-alternatives">
+                  <strong>También valora:</strong> {item.alternatives.map((alt) => `${alt.marketLabel} (${pct(alt.probability)} · ${alt.score.toFixed(1)}/10)`).join(" · ")}
+                </div>
+              )}
               <div className="analyzed-metrics">
                 <span>🧠 {pct(item.probability)}</span>
                 <span>💙 {item.score !== undefined ? `${item.score.toFixed(1)}/10` : "Nota pendiente"}</span>
