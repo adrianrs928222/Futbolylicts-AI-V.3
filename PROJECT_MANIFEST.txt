@@ -1,0 +1,50 @@
+FUTBOLYLICTS-AI v0.15.0
+========================
+
+IDENTIDAD
+- LA MENTE DEL GOL ⭐
+- Futbolylicts-AI
+
+ARQUITECTURA
+- API-Football: SOLO datos deportivos
+- The Odds API: SOLO cuotas simples disponibles
+- Supabase: caché + histórico + control de uso
+- Motor propio: probabilidad + nota + valor + combinada
+
+MOTOR
+- ALTA: >=70% Y >=8.0/10
+- MUY ALTA: >=78% Y >=9.0/10
+- probabilidad y nota independientes
+- valor mínimo sobre cuota real: +3 puntos porcentuales
+- prioridad 8.5+ / 78%+
+- cuota/pick oficial @1.25–@1.75
+- BTTS mínimo @1.35
+- objetivo total @8–@10 (centro @9)
+- 4–6 patas, máximo una por partido
+- mercados pueden repetirse
+- +2.5 tiene peso real si mantiene ALTA/MUY ALTA
+- combinados: 1X/X2/Ganador + +1.5/+2.5
+- probabilidad de combinados calculada conjuntamente por marcadores
+- si falta cuota real, se muestra cuota justa EST. del modelo; nunca se etiqueta como REAL
+- UNDER y hándicap prohibidos
+
+VISIBILIDAD
+- todos los partidos elegibles de hoy visibles
+- iniciados/finalizados también visibles
+- hasta 18 análisis profundos por defecto
+- hasta 10 partidos con primera consulta de cuotas por defecto
+- segunda familia alternativa para hasta 4 partidos sin pick
+- todos los analizados visibles con motivo
+- alternativas fuertes visibles, incluidos combinados del mismo partido
+- todos los picks válidos visibles sin corte a 18
+- si no se alcanza @8 sin degradar calidad, se muestran igualmente los picks válidos
+
+FILTROS
+- reservas excluidas salvo Eerste Divisie
+- U23/juveniles excluidos
+- femenino excluido
+- amistosos excluidos
+
+MIGRACIÓN
+- no hay migración nueva v0.15
+- desde v0.6: ejecutar una vez supabase/migrations/v0.7_the_odds_api.sql
