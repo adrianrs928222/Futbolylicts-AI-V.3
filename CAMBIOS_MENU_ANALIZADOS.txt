@@ -1,0 +1,27 @@
+Futbolylicts-AI — menú de analizados + análisis máximo
+
+Archivos modificados:
+1) components/Dashboard.tsx
+   - Navegación rápida: Combinada / Jornada / Analizados / Historial.
+   - Explorador compacto de partidos analizados.
+   - Filtros Todos / Pasan / Cerca / Fuera.
+   - Buscador por equipo, liga o mercado.
+   - 12 resultados iniciales + Mostrar 12 más / Ver todos / Compactar.
+   - Cada partido se abre/cierra para mostrar los detalles.
+
+2) app/globals.css
+   - Estilos del nuevo menú, navegación y responsive móvil.
+
+3) lib/engine/analyze.ts
+   - Eliminado el corte artificial de 40 partidos para análisis profundo.
+   - Intenta todos los partidos prematch de ligas permitidas.
+   - Solo cuenta como analizado a fondo cuando se obtienen los datos de forma de ambos equipos.
+   - Si la API no permite más, mantiene el partido en la jornada pero no lo cuenta como análisis profundo.
+   - Resume los fallos por cuota/API sin llenar el JSON de avisos.
+
+IMPORTANTE:
+La aplicación ya no limita a 40 por su lógica. El máximo real sigue dependiendo de la cuota/presupuesto de API-Football configurado en API_CALL_BUDGET_DAILY y del plan del proveedor. La caché evita repetir llamadas disponibles.
+
+Validación realizada:
+- Sintaxis TypeScript/TSX comprobada con TypeScript transpileModule.
+- No fue posible ejecutar el typecheck completo porque el ZIP original no incluye node_modules y la instalación de dependencias no terminó dentro del entorno de validación.
