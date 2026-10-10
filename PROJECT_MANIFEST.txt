@@ -1,0 +1,30 @@
+VERSION v0.24 — SOLO LIGAS CONOCIDAS + EERSTE DIVISIE JONG + HARD TARGET @8–@10
+
+FUTBOLYLICTS-AI V0.24
+=====================
+app/                  Next.js App Router y API routes
+components/           Dashboard natural/humano
+lib/cache/            Caché memoria/Supabase + presupuesto API
+lib/config/           Reglas, ligas preferidas y exclusiones
+lib/data/             Datos demo
+lib/engine/           Scoring, cuotas EST., mercados, combinada y revisión final
+lib/providers/        API-Football + The Odds API opcional
+lib/storage/          Persistencia Supabase
+scripts/              Diagnóstico
+supabase/             Esquema y migraciones
+tests/                Tests del motor
+docs/                 Reglas y documentación
+
+CAMBIO CENTRAL V0.24
+--------------------
+- La Combinada del Día solo se publica si queda entre @8 y @10 EST.
+- Primera búsqueda con 4–6 picks y alternativas más inteligentes.
+- Si no llega, rescate usando todos los mercados ALTA/MUY ALTA disponibles.
+- Último recurso: hasta 8 picks, siempre uno por partido y sin bajar de ALTA.
+- Nunca publica @2–@7 como Combinada del Día.
+- Mercados combinados recalibrados tipo Bet Builder y calculados por marcadores conjuntos.
+- BTTS/+2.5 se comparan sin preferencia artificial.
+- La repetición de mercados no se penaliza.
+- Ligas raras quedan fuera de la combinada oficial.
+- Segunda División española es preferida.
+- Eerste Divisie conserva equipos Jong oficiales.
