@@ -1,0 +1,16 @@
+Futbolylicts-AI — cambios integrados
+
+- Marca visible: "⚽ Futbolylicts-AI" sin número de versión en la cabecera.
+- Combinada del Día mantiene objetivo obligatorio @8–@10.
+- Se conservan todos los mercados actuales del motor, incluidos mercados combinados.
+- Partidos analizados: explorador compacto con buscador, filtros y carga progresiva.
+- Análisis profundo: sin corte interno de 40; intenta todos los partidos prematch de las competiciones permitidas hasta donde llegue la API/caché.
+- Historial visible justo debajo de la Combinada del Día.
+- Historial principal SOLO por combinada oficial: ACERTADA si entran todas las patas, FALLIDA si falla una, PENDIENTE si aún faltan resultados.
+- Cada combinada del historial se puede abrir para ver sus patas, mercados combinados, cuota y resultado.
+- Estadísticas del historial: combinadas, acertadas, fallidas, pendientes, porcentaje de acierto y cuota media.
+- El historial reutiliza combo_history y también recupera combinadas antiguas guardadas en daily_analysis cuando existen.
+- Nueva combinada oficial guardada automáticamente en combo_history desde /api/daily y /api/refresh.
+- Tarjetas de funcionamiento reescritas con lenguaje natural de apostador.
+- "No Under ni hándicap" se mantiene visible.
+- Tarjeta "Ligas disponibles" muestra todos los nombres configurados sin ocultarlos tras un botón.
